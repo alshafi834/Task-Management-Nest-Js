@@ -10,7 +10,9 @@ import * as bcrypt from 'bcrypt';
 
 @EntityRepository(User)
 export class UserRepository extends Repository<User> {
-  async createUser(authCredentialsDto: AuthCredentialsDto): Promise<void> {
+  async createUser(
+    authCredentialsDto: AuthCredentialsDto,
+  ): Promise<{ msg: string }> {
     const { username, password } = authCredentialsDto;
 
     const salt = await bcrypt.genSalt();
@@ -19,6 +21,7 @@ export class UserRepository extends Repository<User> {
     const user = this.create({ username, password: hashedPassword });
     try {
       await this.save(user);
+      return { msg: 'account created successfully' };
     } catch (error) {
       if (error.code === '23505') {
         throw new ConflictException('Username already exist!');
